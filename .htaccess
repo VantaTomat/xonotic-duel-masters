@@ -1,0 +1,36 @@
+php_value date.timezone Africa/Algiers
+
+RewriteEngine On
+RewriteBase /
+
+# ----------------------------------------------------------------------
+# 1. EXTERNAL 301 REDIRECTS (Old Query URLs -> Clean URLs)
+# ----------------------------------------------------------------------
+
+# Redirect /member.php?mID=X -> /member/X
+RewriteCond %{THE_REQUEST} \s/member\.php\?mID=([0-9]+)\s [NC]
+RewriteRule ^ /member/%1? [R=301,L]
+
+# Redirect /tournaments/tournament.php?tID=X -> /tournaments/X
+RewriteCond %{THE_REQUEST} \s/tournaments/tournament\.php\?tID=([0-9]+)\s [NC]
+RewriteRule ^ /tournaments/%1? [R=301,L]
+
+# Redirect ALL root .php files to clean URLs (e.g. /notifications.php -> /notifications)
+RewriteCond %{THE_REQUEST} \s/([^/\s?]+)\.php[\s?] [NC]
+RewriteRule ^ /%1 [R=301,L]
+
+
+# ----------------------------------------------------------------------
+# 2. INTERNAL REWRITES (Clean URLs -> Actual PHP Files)
+# ----------------------------------------------------------------------
+
+# Map /tournaments/48 -> /tournaments/tournament.php?tID=48
+RewriteRule ^tournaments/([0-9]+)$ tournaments/tournament.php?tID=$1 [QSA,L]
+
+# Map /member/1 -> /member.php?mID=1
+RewriteRule ^member/([0-9]+)$ member.php?mID=$1 [QSA,L]
+
+# Map clean URLs to actual PHP files (/leaderboard -> leaderboard.php, /wallet -> wallet.php, etc.)
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME}\.php -f
+RewriteRule ^([a-zA-Z0-9_-]+)$ $1.php [QSA,L]
